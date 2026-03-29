@@ -2,7 +2,7 @@ from typing import ClassVar
 
 import pytest  #
 
-from simrun.jobs.namelist import Int, Namelist, NamelistFile, Str
+from sim_server.core.namelist import Int, Namelist, NamelistFile, Str
 
 
 class Section(Namelist):

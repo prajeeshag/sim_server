@@ -1,4 +1,4 @@
-from simrun.jobs.namelist import bool2txt, list2txt, num2txt, str2txt
+from sim_server.core.namelist import bool2txt, list2txt, num2txt, str2txt
 
 
 def fmt(v, to_nml=num2txt, line_length=20, indent="    "):

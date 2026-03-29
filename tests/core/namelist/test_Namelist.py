@@ -3,7 +3,7 @@ from typing import ClassVar
 
 import pytest
 
-from simrun.jobs.namelist import (
+from sim_server.core.namelist import (
     Bool,
     Float,
     Int,

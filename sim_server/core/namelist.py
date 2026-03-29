@@ -103,7 +103,7 @@ class Namelist(BaseModel):
 
     def to_nml(self) -> str:
         lines: list[str] = []
-        for name, field in self.model_fields.items():
+        for name, field in type(self).model_fields.items():
             value = getattr(self, name)
             nl_field = get_namelist_field(field.metadata)
             if nl_field is None:
@@ -128,7 +128,7 @@ class NamelistFile(BaseModel):
 
     def to_nml(self) -> str:
         lines: list[str] = []
-        for name, field in self.model_fields.items():
+        for name, field in type(self).model_fields.items():
             value = getattr(self, name)
             if isinstance(value, Namelist):
                 lines.append(f"&{name}")
