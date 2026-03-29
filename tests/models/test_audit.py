@@ -56,7 +56,7 @@ class TestUserEvent:
             event_type=EventType.LOGIN_FAILED,
             ip_address="1.2.3.4",
         )
-        assert event.user_id is None
+        assert event.user_id is None  # type: ignore
 
     async def test_with_metadata(self):
         user = await make_user(email="meta@example.com")
@@ -77,12 +77,16 @@ class TestUserEvent:
 
         # audit record survives, FK is nulled
         surviving = await UserEvent.get(id=event_id)
-        assert surviving.user_id is None
+        assert surviving.user_id is None  # type: ignore
 
     async def test_multiple_events_set_null_on_user_delete(self):
         user = await make_user(email="multi-event@example.com")
         ids = []
-        for etype in [EventType.LOGIN_SUCCESS, EventType.PASSWORD_CHANGED, EventType.LOGOUT]:
+        for etype in [
+            EventType.LOGIN_SUCCESS,
+            EventType.PASSWORD_CHANGED,
+            EventType.LOGOUT,
+        ]:
             e = await UserEvent.create(user=user, event_type=etype)
             ids.append(e.id)
 
@@ -90,4 +94,4 @@ class TestUserEvent:
 
         for eid in ids:
             e = await UserEvent.get(id=eid)
-            assert e.user_id is None
+            assert e.user_id is None  # type: ignore
