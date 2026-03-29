@@ -1,4 +1,5 @@
 from tortoise import fields, models
+from tortoise.signals import post_save
 
 
 class User(models.Model):
@@ -52,3 +53,11 @@ class OAuthAccount(models.Model):
 
     class Meta:
         unique_together = (("provider", "provider_user_id"),)
+
+
+@post_save(User)
+async def create_user_profile(
+    sender, instance: User, created: bool, using_db, update_fields
+) -> None:
+    if created:
+        await UserProfile.create(user=instance)

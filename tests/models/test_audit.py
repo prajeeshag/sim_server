@@ -1,17 +1,14 @@
-import uuid
-
 from sim_server.models.audit import EventType, LoginAttempt, LoginResult, UserEvent
 from sim_server.models.user import User
 
 
 async def make_user(email="audit@example.com") -> User:
-    return await User.create(id=uuid.uuid4(), email=email)
+    return await User.create(email=email)
 
 
 class TestLoginAttempt:
     async def test_create_success(self):
         attempt = await LoginAttempt.create(
-            id=uuid.uuid4(),
             email="user@example.com",
             ip_address="192.168.1.1",
             result=LoginResult.SUCCESS,
@@ -21,7 +18,6 @@ class TestLoginAttempt:
 
     async def test_create_failed(self):
         attempt = await LoginAttempt.create(
-            id=uuid.uuid4(),
             email="unknown@example.com",
             ip_address="10.0.0.1",
             user_agent="Mozilla/5.0",
@@ -32,7 +28,6 @@ class TestLoginAttempt:
     async def test_no_user_fk_logs_unknown_email(self):
         # LoginAttempt has no FK — unknown emails are recorded
         attempt = await LoginAttempt.create(
-            id=uuid.uuid4(),
             email="nobody@example.com",
             ip_address="1.2.3.4",
             result=LoginResult.USER_NOT_FOUND,
@@ -42,7 +37,6 @@ class TestLoginAttempt:
 
     async def test_ipv6_address(self):
         attempt = await LoginAttempt.create(
-            id=uuid.uuid4(),
             email="ipv6@example.com",
             ip_address="2001:db8::1",
             result=LoginResult.SUCCESS,
@@ -53,16 +47,11 @@ class TestLoginAttempt:
 class TestUserEvent:
     async def test_create_with_user(self):
         user = await make_user()
-        event = await UserEvent.create(
-            id=uuid.uuid4(),
-            user=user,
-            event_type=EventType.REGISTERED,
-        )
+        event = await UserEvent.create(user=user, event_type=EventType.REGISTERED)
         assert event.event_type == EventType.REGISTERED
 
     async def test_create_without_user(self):
         event = await UserEvent.create(
-            id=uuid.uuid4(),
             user=None,
             event_type=EventType.LOGIN_FAILED,
             ip_address="1.2.3.4",
@@ -72,7 +61,6 @@ class TestUserEvent:
     async def test_with_metadata(self):
         user = await make_user(email="meta@example.com")
         event = await UserEvent.create(
-            id=uuid.uuid4(),
             user=user,
             event_type=EventType.ROLE_ASSIGNED,
             metadata={"role": "editor", "changed_by": "admin"},
@@ -82,11 +70,7 @@ class TestUserEvent:
 
     async def test_set_null_on_user_delete(self):
         user = await make_user(email="deleteme@example.com")
-        event = await UserEvent.create(
-            id=uuid.uuid4(),
-            user=user,
-            event_type=EventType.ACCOUNT_DELETED,
-        )
+        event = await UserEvent.create(user=user, event_type=EventType.ACCOUNT_DELETED)
         event_id = event.id
 
         await user.delete()
@@ -99,7 +83,7 @@ class TestUserEvent:
         user = await make_user(email="multi-event@example.com")
         ids = []
         for etype in [EventType.LOGIN_SUCCESS, EventType.PASSWORD_CHANGED, EventType.LOGOUT]:
-            e = await UserEvent.create(id=uuid.uuid4(), user=user, event_type=etype)
+            e = await UserEvent.create(user=user, event_type=etype)
             ids.append(e.id)
 
         await user.delete()

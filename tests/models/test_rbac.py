@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 from tortoise.exceptions import IntegrityError
 
@@ -8,7 +6,7 @@ from sim_server.models.user import User
 
 
 async def make_user(email="rbac@example.com") -> User:
-    return await User.create(id=uuid.uuid4(), email=email)
+    return await User.create(email=email)
 
 
 class TestPermission:
