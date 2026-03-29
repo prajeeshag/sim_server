@@ -1,16 +1,13 @@
 from pwdlib import PasswordHash
-from pwdlib.hashers.argon2 import Argon2Hasher
 
-pwd_hasher = PasswordHash([Argon2Hasher()])
+pwd_hasher = PasswordHash.recommended()
 
 
 def hash_password(password: str) -> str:
     return pwd_hasher.hash(password)
 
 
-def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_hasher.verify(plain, hashed)
-
-
-def needs_rehash(hashed: str) -> bool:
-    return pwd_hasher.check_needs_rehash(hashed)
+def verify_password(plain: str, hashed: str) -> tuple[bool, str | None]:
+    """Returns (is_valid, new_hash_if_needs_rehash)."""
+    ok, new_hash = pwd_hasher.verify_and_update(plain, hashed)
+    return ok, new_hash

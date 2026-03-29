@@ -18,6 +18,7 @@ class TestUser:
     async def test_profile_created_automatically(self):
         user = await make_user()
         profile = await UserProfile.get(user=user)
+        assert profile.display_name == "user"
         assert profile.timezone == "UTC"
         assert profile.locale == "en"
 

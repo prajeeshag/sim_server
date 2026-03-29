@@ -28,7 +28,7 @@ class UserProfile(models.Model):
         primary_key=True,
         on_delete=fields.CASCADE,
     )
-    display_name = fields.CharField(max_length=100, null=True)
+    display_name = fields.CharField(max_length=100)
     avatar_url = fields.CharField(max_length=500, null=True)
     bio = fields.TextField(null=True)
     timezone = fields.CharField(max_length=50, default="UTC")
@@ -60,4 +60,4 @@ async def create_user_profile(
     sender, instance: User, created: bool, using_db, update_fields
 ) -> None:
     if created:
-        await UserProfile.create(user=instance)
+        await UserProfile.create(user=instance, display_name=instance.email.split("@")[0])
