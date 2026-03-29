@@ -97,5 +97,5 @@ class TestUserRoles:
         await u1.roles.add(role)
         await u2.roles.add(role)
 
-        users = await role.users.all()
+        users = await role.users.all()  # type: ignore
         assert len(users) == 2

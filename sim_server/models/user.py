@@ -60,4 +60,7 @@ async def create_user_profile(
     sender, instance: User, created: bool, using_db, update_fields
 ) -> None:
     if created:
-        await UserProfile.create(user=instance, display_name=instance.email.split("@")[0])
+        await UserProfile.create(
+            user=instance,
+            display_name=instance.email.split("@")[0],
+        )
