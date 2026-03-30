@@ -9,8 +9,6 @@ TORTOISE_APPS = {
     "models": {
         "models": [
             "sim_server.models.user",
-            "sim_server.models.auth",
-            "sim_server.models.rbac",
             "sim_server.models.audit",
         ],
         "default_connection": "default",
@@ -21,11 +19,15 @@ TORTOISE_APPS = {
 @pytest.fixture(autouse=True)
 async def db(postgresql):
     info = postgresql.info
-    password = f":{info.password}" if info.password else ""
-    db_url = f"asyncpg://{info.user}{password}@{info.host}:{info.port}/{info.dbname}"
+    db_url = (
+        f"postgres://{info.user}:{info.password}@{info.host}:{info.port}/{info.dbname}"
+    )
 
     await Tortoise.init(
-        config={"connections": {"default": db_url}, "apps": TORTOISE_APPS}
+        config={
+            "connections": {"default": db_url},
+            "apps": TORTOISE_APPS,
+        }
     )
     await Tortoise.generate_schemas()
     yield

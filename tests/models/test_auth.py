@@ -3,8 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from tortoise.exceptions import IntegrityError
 
-from sim_server.models.auth import RefreshToken, TokenPurpose, VerificationToken
-from sim_server.models.user import User
+from sim_server.models.user import RefreshToken, TokenPurpose, User, VerificationToken
 
 
 async def make_user(email="auth@example.com") -> User:

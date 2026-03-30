@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 
 from sim_server.models.user import User
-from tokens import decode_token
+
+from .tokens import decode_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -33,3 +34,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
             detail="User inactive or not found",
         )
     return user
+
+
+async def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not await current_user.roles.filter(name="admin").exists():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return current_user

@@ -1,32 +1,24 @@
 from enum import Enum
 
 from pydantic import Field, model_validator
-from pydantic_settings import BaseSettings
-
-TEST_DB = "sqlite://:memory:"
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class EnvChoices(str, Enum):
     prod = "prod"
     dev = "dev"
-    test = "test"
 
 
 class Settings(BaseSettings):
-    env: EnvChoices = EnvChoices.prod
-    secret_key: str = Field(default="xxx")
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 15
-    refresh_token_expire_days: int = 7
+    model_config = SettingsConfigDict(env_file=".env")
 
-    # Tortoise ORM
-    db_url: str = TEST_DB
-    # Production examples:
-    # db_url: str = "postgres://user:pass@localhost:5432/mydb"
-    # db_url: str = "mysql://user:pass@localhost:3306/mydb"
-
-    class Config:
-        env_file = ".env"
+    env: EnvChoices = Field(default=EnvChoices.prod, alias="ENV")
+    secret_key: str = Field(default="", alias="SECRET_KEY")
+    db_url: str = Field(default="", alias="DB_URL")
+    access_token_expire_minutes: int = Field(
+        default=15, alias="ACCESS_TOKEN_EXPIRE_MINUTES"
+    )
+    refresh_token_expire_days: int = Field(default=7, alias="REFRESH_TOKEN_EXPIRE_DAYS")
 
     @model_validator(mode="after")
     def resolve_prod_settings(self) -> "Settings":
@@ -34,19 +26,9 @@ class Settings(BaseSettings):
             return self
         if not self.secret_key:
             raise ValueError("SECRET_KEY must be set in production")
-        if self.db_url == TEST_DB:
+        if self.db_url == "":
             raise ValueError("DB_URL should be set in production")
         return self
 
 
 settings = Settings()
-
-TORTOISE_ORM_CONFIG = {
-    "connections": {"default": settings.db_url},
-    "apps": {
-        "models": {
-            "models": ["models.orm", "aerich.models"],
-            "default_connection": "default",
-        }
-    },
-}

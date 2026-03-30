@@ -1,4 +1,3 @@
-from deps import get_current_user
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sim_server.models.user import OAuthAccount, User, UserProfile
@@ -8,6 +7,8 @@ from sim_server.schemas import (
     UserProfileUpdate,
     UserReadWithProfile,
 )
+
+from ..deps import get_current_user
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

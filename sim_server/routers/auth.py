@@ -8,8 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from security import hash_password, verify_password
 from tokens import create_access_token
 
-from sim_server.models.auth import RefreshToken, TokenPurpose, VerificationToken
-from sim_server.models.user import User
+from sim_server.models.user import RefreshToken, TokenPurpose, User, VerificationToken
 from sim_server.schemas import (
     EmailVerifyRequest,
     LoginRequest,

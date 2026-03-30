@@ -43,6 +43,10 @@ class UserReadWithProfile(UserRead):
     profile: UserProfileRead | None = None
 
 
+class UserAdminRead(UserRead):
+    roles: list[str] = []  # role names
+
+
 class OAuthAccountRead(BaseModel):
     id: UUID
     provider: str

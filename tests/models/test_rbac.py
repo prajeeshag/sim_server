@@ -1,8 +1,7 @@
 import pytest
 from tortoise.exceptions import IntegrityError
 
-from sim_server.models.rbac import Permission, Role
-from sim_server.models.user import User
+from sim_server.models.user import Permission, Role, User
 
 
 async def make_user(email="rbac@example.com") -> User:

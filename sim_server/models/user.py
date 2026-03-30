@@ -1,5 +1,18 @@
+from enum import StrEnum
+
 from tortoise import fields, models
 from tortoise.signals import post_save
+
+
+class Permission(models.Model):
+    codename = fields.CharField(
+        max_length=100, unique=True
+    )  # "post:delete", "user:ban"
+
+
+class Role(models.Model):
+    name = fields.CharField(max_length=50, unique=True)
+    permissions = fields.ManyToManyField("models.Permission")
 
 
 class User(models.Model):
@@ -13,7 +26,6 @@ class User(models.Model):
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
-    # Relations
     roles = fields.ManyToManyField("models.Role", related_name="users")
     oauth_accounts = fields.ReverseRelation["OAuthAccount"]
 
@@ -23,7 +35,7 @@ class User(models.Model):
 
 class UserProfile(models.Model):
     user = fields.OneToOneField(
-        "models.User",
+        User,
         related_name="profile",
         primary_key=True,
         on_delete=fields.CASCADE,
@@ -42,17 +54,48 @@ class UserProfile(models.Model):
 class OAuthAccount(models.Model):
     id = fields.UUIDField(primary_key=True)
     user = fields.ForeignKeyField(
-        "models.User",
+        User,
         related_name="oauth_accounts",
         on_delete=fields.CASCADE,
     )
     provider = fields.CharField(max_length=50)  # "google", "github", etc.
     provider_user_id = fields.CharField(max_length=255)
-    access_token = fields.TextField(null=True)  # optional, if you need API access
+    access_token = fields.TextField(null=True)
     expires_at = fields.DatetimeField(null=True)
 
     class Meta:
         unique_together = (("provider", "provider_user_id"),)
+
+
+class TokenPurpose(StrEnum):
+    EMAIL_VERIFY = "email_verify"
+    PASSWORD_RESET = "password_reset"
+
+
+class RefreshToken(models.Model):
+    id = fields.UUIDField(primary_key=True)
+    user = fields.ForeignKeyField(
+        User,
+        related_name="refresh_tokens",
+        on_delete=fields.CASCADE,
+    )
+    token_hash = fields.CharField(max_length=255, unique=True)  # store hash, not raw
+    expires_at = fields.DatetimeField()
+    revoked = fields.BooleanField(default=False)
+    created_at = fields.DatetimeField(auto_now_add=True)
+
+
+class VerificationToken(models.Model):
+    id = fields.UUIDField(primary_key=True)
+    user = fields.ForeignKeyField(
+        User,
+        related_name="verification_tokens",
+        on_delete=fields.CASCADE,
+    )
+    token_hash = fields.CharField(max_length=255, unique=True)
+    purpose = fields.CharEnumField(enum_type=TokenPurpose)
+    expires_at = fields.DatetimeField()
+    used_at = fields.DatetimeField(null=True)  # mark as used rather than delete
 
 
 @post_save(User)

@@ -11,6 +11,7 @@ from .auth import (
 from .rbac import PermissionRead, RoleAssign, RoleCreate, RoleRead
 from .user import (
     OAuthAccountRead,
+    UserAdminRead,
     UserCreate,
     UserProfileRead,
     UserProfileUpdate,
@@ -20,6 +21,7 @@ from .user import (
 
 __all__ = [
     # user
+    "UserAdminRead",
     "UserCreate",
     "UserRead",
     "UserReadWithProfile",
